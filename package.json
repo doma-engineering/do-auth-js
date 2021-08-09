@@ -1,0 +1,30 @@
+{
+  "name": "do-auth-js",
+  "version": "0.3.0",
+  "description": "A client for a fast, lean and reliable authentication server based on verifiable credentials standard ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doma-engineering/do-auth-js.git"
+  },
+  "keywords": [
+    "aaa",
+    "authentication",
+    "authorization",
+    "verifiable credentials",
+    "decentralized",
+    "identifiers"
+  ],
+  "author": "Doma",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/doma-engineering/do-auth-js/issues"
+  },
+  "homepage": "https://github.com/doma-engineering/do-auth-js#readme",
+  "dependencies": {
+    "libsodium-wrappers": "^0.7.9"
+  }
+}

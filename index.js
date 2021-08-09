@@ -1,0 +1,1 @@
+throw ("Currently, only client-side script that is used for DoAuth browser-based dashboard is packaged.\nThe purpose of this package is to seve it through unpkg.\nThank you for understanding!\nCheck out other (non-FOSS) great work by Michael Jackson: https://remix.run/");
