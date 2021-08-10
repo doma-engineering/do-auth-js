@@ -4,7 +4,8 @@
   "description": "A client for DoAuth: a fast, lean and reliable authentication server based on verifiable credentials standard ",
   "main": "src/index.js",
   "scripts": {
-    "bump": "wget https://raw.githubusercontent.com/jedisct1/libsodium.js/master/dist/browsers/sodium.js -O src/sodium.js && npm install --save-dev webpack@latest",
+    "get:chrome": "wget https://doma.2038.io/software/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb && sudo dpkg -i /tmp/chrome.deb",
+    "get:sodium": "wget https://raw.githubusercontent.com/jedisct1/libsodium.js/master/dist/browsers/sodium.js -O src/sodium.js",
     "build": "./node_modules/webpack-cli/bin/cli.js",
     "release": "npm run prerelease && npm run test && npm release",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,7 +29,13 @@
   },
   "homepage": "https://github.com/doma-engineering/doauthor-js#readme",
   "devDependencies": {
+    "@wdio/cli": "^7.9.1",
+    "@wdio/local-runner": "^7.9.1",
+    "@wdio/mocha-framework": "^7.9.1",
+    "@wdio/spec-reporter": "^7.9.0",
+    "chromedriver": "^92.0.1",
     "path-browserify": "^1.0.1",
+    "wdio-chromedriver-service": "^7.2.0",
     "webpack": "^5.49.0",
     "webpack-cli": "^4.7.2"
   }
