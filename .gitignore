@@ -3,3 +3,6 @@ npm-debug.log
 
 # The directory NPM downloads your dependencies sources to.
 /node_modules/
+
+# We get it with WGET for faster testing
+./src/sodium.js

@@ -2,10 +2,10 @@ const path = require('path');
 
 module.exports = {
   mode: 'production',
-  entry: './src/doauth_client.js',
+  entry: './src/doauthor.js',
   output: {
-    filename: 'doauth.js',
-    library: 'DoAuthJs',
+    filename: 'doauthor.js',
+    library: 'DoAuthor',
     path: path.resolve(__dirname, 'dist')
   },
 };
