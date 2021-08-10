@@ -2,8 +2,11 @@
   "name": "do-auth-js",
   "version": "0.3.0",
   "description": "A client for a fast, lean and reliable authentication server based on verifiable credentials standard ",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "bump": "wget https://raw.githubusercontent.com/jedisct1/libsodium.js/master/dist/browsers/sodium.js -O src/sodium.js && npm install --save-dev webpack@latest",
+    "build": "./node_modules/webpack-cli/bin/cli.js",
+    "release": "npm run prerelease && npm run test && npm release",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,7 +27,9 @@
     "url": "https://github.com/doma-engineering/do-auth-js/issues"
   },
   "homepage": "https://github.com/doma-engineering/do-auth-js#readme",
-  "dependencies": {
-    "libsodium-wrappers": "^0.7.9"
+  "devDependencies": {
+    "path-browserify": "^1.0.1",
+    "webpack": "^5.49.0",
+    "webpack-cli": "^4.7.2"
   }
 }
