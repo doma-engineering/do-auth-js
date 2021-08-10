@@ -1,6 +1,6 @@
 {
   "name": "doauthor",
-  "version": "0.3.0",
+  "version": "0.0.2",
   "description": "A client for DoAuth: a fast, lean and reliable authentication server based on verifiable credentials standard ",
   "main": "src/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doma-engineering/do-auth-js.git"
+    "url": "git+https://github.com/doma-engineering/doauthor-js.git"
   },
   "keywords": [
     "aaa",
