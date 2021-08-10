@@ -9,7 +9,7 @@ export const main = async () => {
                 }
             };
 
-            window.doAuth = {
+            window.doauthor = {
                 server: window.location.protocol + '//' + window.location.hostname + maybePort(),
                 saltSize: 16,
                 hashSize: 32,
@@ -20,44 +20,44 @@ export const main = async () => {
                 },
             };
 
-            window.doAuth.crypto = {};
+            window.doauthor.crypto = {};
 
-            window.doAuth.crypto.show = (bs) => {
+            window.doauthor.crypto.show = (bs) => {
                 return sodium.to_base64(bs, sodium.base64_variants["URLSAFE"]);
             }
 
-            window.doAuth.crypto.read = (s) => {
+            window.doauthor.crypto.read = (s) => {
                 return sodium.from_base64(s, sodium.base64_variants["URLSAFE"]);
             }
 
-            window.doAuth.crypto.mainKey = (pass) => {
+            window.doauthor.crypto.mainKey = (pass) => {
                 slipMaybe = localStorage.getItem("slip");
-                dp = doAuth.defaultParams;
+                dp = doauthor.defaultParams;
                 if (slipMaybe) {
-                    return doAuth.crypto.mainKeyReproduce2(pass, JSON.parse(slipMaybe));
+                    return doauthor.crypto.mainKeyReproduce2(pass, JSON.parse(slipMaybe));
                 } else {
-                    [mkey, slip] = doAuth.crypto.mainKeyInit2(pass, {
+                    [mkey, slip] = doauthor.crypto.mainKeyInit2(pass, {
                         ops: dp.opsLimit,
                         mem: dp.memLimit,
-                        saltSize: doAuth.saltSize,
+                        saltSize: doauthor.saltSize,
                     });
                     localStorage.setItem("slip", JSON.stringify(slip));
                     return mkey;
                 }
             }
 
-            window.doAuth.crypto.mainKeyInit2 = (pass, slipConfig) => {
-                slip1 = { ...slipConfig, salt: doAuth.crypto.show(sodium.randombytes_buf(slipConfig.saltSize)) };
-                mkey = doAuth.crypto.mainKeyReproduce2(pass, slip1);
+            window.doauthor.crypto.mainKeyInit2 = (pass, slipConfig) => {
+                slip1 = { ...slipConfig, salt: doauthor.crypto.show(sodium.randombytes_buf(slipConfig.saltSize)) };
+                mkey = doauthor.crypto.mainKeyReproduce2(pass, slip1);
                 return [mkey, slip1];
             }
 
-            window.doAuth.crypto.mainKeyReproduce2 = (pass, slip) => {
+            window.doauthor.crypto.mainKeyReproduce2 = (pass, slip) => {
                 let { ops, mem, saltSize, salt } = slip;
                 mkey = sodium.crypto_pwhash(
-                    doAuth.hashSize, // kinda hardcoded but ok
+                    doauthor.hashSize, // kinda hardcoded but ok
                     pass,
-                    doAuth.crypto.read(salt),
+                    doauthor.crypto.read(salt),
                     ops,
                     mem,
                     sodium.crypto_pwhash_ALG_DEFAULT
@@ -65,23 +65,23 @@ export const main = async () => {
                 return mkey;
             }
 
-            window.doAuth.crypto.deriveSigningKeypair = (mkey, n) => {
-                mkd = sodium.crypto_kdf_derive_from_key(doAuth.keySize, n, "signsign", mkey);
+            window.doauthor.crypto.deriveSigningKeypair = (mkey, n) => {
+                mkd = sodium.crypto_kdf_derive_from_key(doauthor.keySize, n, "signsign", mkey);
                 let { publicKey, privateKey } = sodium.crypto_sign_seed_keypair(mkd);
                 return { public: publicKey, secret: privateKey };
             }
 
-            window.doAuth.crypto.sign = (msg, kp) => {
+            window.doauthor.crypto.sign = (msg, kp) => {
                 return { public: kp.public, signature: sodium.crypto_sign_detached(msg, kp.secret) };
             }
 
-            window.doAuth.crypto.verify = (msg, detached) => {
+            window.doauthor.crypto.verify = (msg, detached) => {
                 //console.log(detached.public, detached.signature)
                 return sodium.crypto_sign_verify_detached(detached.signature, msg, detached.public);
             }
 
-            window.doAuth.crypto.bland_hash = (msg) => {
-                return doAuth.crypto.show(sodium.crypto_generichash(doAuth.hashSize, msg));
+            window.doauthor.crypto.bland_hash = (msg) => {
+                return doauthor.crypto.show(sodium.crypto_generichash(doauthor.hashSize, msg));
             }
 
             /*
@@ -115,42 +115,42 @@ export const main = async () => {
                 }
             };
 
-            window.doAuth.crypto.canonicalise = _canonicalise;
+            window.doauthor.crypto.canonicalise = _canonicalise;
 
-            window.doAuth.credential = {};
+            window.doauthor.credential = {};
 
-            window.doAuth.credential.proofless = (cred) => {
+            window.doauthor.credential.proofless = (cred) => {
                 ctxs = cred['@context'];
                 let { type, issuer, issuanceDate, credentialSubject } = cred;
                 return { '@context': ctxs, type: type, issuer: issuer, issuanceDate: issuanceDate, credentialSubject: credentialSubject };
             };
 
-            window.doAuth.credential.prooflessJSON = (cred) => {
+            window.doauthor.credential.prooflessJSON = (cred) => {
                 return JSON.stringify(
-                    doAuth.crypto.canonicalise(
-                        doAuth.credential.proofless(cred)
+                    doauthor.crypto.canonicalise(
+                        doauthor.credential.proofless(cred)
                     )
                 );
             };
 
-            window.doAuth.credential.verify = (cred, pk) => {
-                return doAuth.crypto.verify(
-                    doAuth.credential.prooflessJSON(cred),
+            window.doauthor.credential.verify = (cred, pk) => {
+                return doauthor.crypto.verify(
+                    doauthor.credential.prooflessJSON(cred),
                     {
                         public: pk,
-                        signature: doAuth.crypto.read(cred.proof.signature)
+                        signature: doauthor.crypto.read(cred.proof.signature)
                     }
                 );
             };
 
-            window.doAuth.credential.verify64 = (cred, pk) => {
-                return doAuth.credential.verify(cred, doAuth.crypto.read(pk));
+            window.doauthor.credential.verify64 = (cred, pk) => {
+                return doauthor.credential.verify(cred, doauthor.crypto.read(pk));
             };
 
-            window.__doAuthHasLoaded__ = true;
+            window.__doauthorHasLoaded__ = true;
         }
     }
-    return new Promise(observeMany(() => [window.__doAuthHasLoaded__]));
+    return new Promise(observeMany(() => [window.__doauthorHasLoaded__]));
 }
 
 export const observePeriodMsec = 30;
