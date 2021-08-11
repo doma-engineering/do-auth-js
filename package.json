@@ -1,6 +1,6 @@
 {
   "name": "doauthor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A client for DoAuth: a fast, lean and reliable authentication server based on verifiable credentials standard ",
   "main": "src/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "get:sodium": "wget https://raw.githubusercontent.com/jedisct1/libsodium.js/master/dist/browsers/sodium.js -O src/sodium.js",
     "build": "./node_modules/webpack-cli/bin/cli.js",
     "watch": "./node_modules/webpack-cli/bin/cli.js watch --env development",
-    "release": "npm run build && npm run test:run && npm release",
+    "release": "npm run build && npm run test:run && npm publish",
     "test:setup": "npx serve -l 8174",
     "test:run": "npx wdio",
     "test:dirty": "npx serve -l 8174 & sleep 1; npx wdio"

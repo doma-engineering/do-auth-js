@@ -6,7 +6,27 @@ For usage as a library, consult `embedded_test_suite.html`.
 
 ## Adding to your website
 
-Use unpkg.com! More instructions pending.
+Fetch JS from unpkg.com:
+
+```
+<script defer src="https://unpkg.com/doauthor@0.2.1/dist/doauthor.js"></script>
+```
+
+Then add the following async call after `</body>`:
+
+```
+(async () => {
+    DoAuthorBootstrapper.main().then(
+        () => {
+            // You have access to doauthor here
+        }
+    )
+})
+```
+
+The reason why you can't add it in `window.onload` is that we're using `sodium.js` underneath, which loads asynchronously and independently from `window`, calling its own `window.sodium.onload` hook.
+
+If you want to check that `doauthor` is loaded, we're setting `window.__doauthorHasLoaded__` variable to `true` after sodium and doauthor are done with injecting their functions into the global namespace.
 
 ## Development environment
 
