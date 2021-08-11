@@ -1,7 +1,7 @@
 export const main = async () => {
     window.sodium = {
         onload: (sodium) => {
-            maybePort = () => {
+            const maybePort = () => {
                 if (window.location.port) {
                     return ':' + window.location.port
                 } else {
@@ -30,31 +30,34 @@ export const main = async () => {
                 return sodium.from_base64(s, sodium.base64_variants["URLSAFE"]);
             }
 
+            window.doauthor.crypto.slipConfig = () => {
+                return {
+                    ops: doauthor.defaultParams.opsLimit,
+                    mem: doauthor.defaultParams.memLimit,
+                    saltSize: doauthor.saltSize
+                };
+            }
+
             window.doauthor.crypto.mainKey = (pass) => {
-                slipMaybe = localStorage.getItem("slip");
-                dp = doauthor.defaultParams;
+                const slipMaybe = localStorage.getItem("slip");
                 if (slipMaybe) {
                     return doauthor.crypto.mainKeyReproduce2(pass, JSON.parse(slipMaybe));
                 } else {
-                    [mkey, slip] = doauthor.crypto.mainKeyInit2(pass, {
-                        ops: dp.opsLimit,
-                        mem: dp.memLimit,
-                        saltSize: doauthor.saltSize,
-                    });
+                    let [mkey, slip] = doauthor.crypto.mainKeyInit2(pass, doauthor.crypto.slipConfig());
                     localStorage.setItem("slip", JSON.stringify(slip));
                     return mkey;
                 }
             }
 
             window.doauthor.crypto.mainKeyInit2 = (pass, slipConfig) => {
-                slip1 = { ...slipConfig, salt: doauthor.crypto.show(sodium.randombytes_buf(slipConfig.saltSize)) };
-                mkey = doauthor.crypto.mainKeyReproduce2(pass, slip1);
+                const slip1 = { ...slipConfig, salt: doauthor.crypto.show(sodium.randombytes_buf(slipConfig.saltSize)) };
+                const mkey = doauthor.crypto.mainKeyReproduce2(pass, slip1);
                 return [mkey, slip1];
             }
 
             window.doauthor.crypto.mainKeyReproduce2 = (pass, slip) => {
-                let { ops, mem, saltSize, salt } = slip;
-                mkey = sodium.crypto_pwhash(
+                let { ops, mem, salt } = slip;
+                const mkey = sodium.crypto_pwhash(
                     doauthor.hashSize, // kinda hardcoded but ok
                     pass,
                     doauthor.crypto.read(salt),
@@ -66,7 +69,7 @@ export const main = async () => {
             }
 
             window.doauthor.crypto.deriveSigningKeypair = (mkey, n) => {
-                mkd = sodium.crypto_kdf_derive_from_key(doauthor.keySize, n, "signsign", mkey);
+                const mkd = sodium.crypto_kdf_derive_from_key(doauthor.keySize, n, "signsign", mkey);
                 let { publicKey, privateKey } = sodium.crypto_sign_seed_keypair(mkd);
                 return { public: publicKey, secret: privateKey };
             }
@@ -76,7 +79,6 @@ export const main = async () => {
             }
 
             window.doauthor.crypto.verify = (msg, detached) => {
-                //console.log(detached.public, detached.signature)
                 return sodium.crypto_sign_verify_detached(detached.signature, msg, detached.public);
             }
 
@@ -147,6 +149,10 @@ export const main = async () => {
                 return doauthor.credential.verify(cred, doauthor.crypto.read(pk));
             };
 
+            window.doauthor.util = {};
+
+            window.doauthor.util.prettyPrint = (x) => JSON.stringify(x, null, 2);
+
             window.__doauthorHasLoaded__ = true;
         }
     }
@@ -155,15 +161,21 @@ export const main = async () => {
 
 export const observePeriodMsec = 30;
 
-export const observeMany = (varsF, timeout) => (resolveF, rejectF) => {
-    if (varsF().reduce((acc, v) => acc && v, false)) {
-        return resolveF(maybeVars);
-    } else if (timeout && timeout > 0) {
-        return rejectF(new Error("Observer timed out"));
-    } else {
-        setTimeout(
-            observeMany.bind(this, varsF, resolveF, rejectF, timeLeft - observePeriodMsec),
-            observePeriodMsec
-        );
+export const observeMany = (varsF, timeLeft) => (resolveF, rejectF) => {
+    //console.log("tick", varsF());
+    var timeLeft1 = undefined;
+    if (varsF().reduce((acc, v) => acc && v, true)) {
+        return resolveF(varsF());
     }
+    if (typeof timeLeft !== 'undefined') {
+        if (timeLeft > 0) {
+            return rejectF(new Error("Observer timed out"));
+        } else {
+            timeLeft1 = timeLeft - observePeriodMsec;
+        }
+    }
+    return setTimeout(
+        observeMany(varsF, timeLeft1).bind(this, resolveF, rejectF),
+        observePeriodMsec
+    );
 }

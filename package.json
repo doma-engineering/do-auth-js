@@ -7,10 +7,11 @@
     "get:chrome": "wget https://doma.2038.io/software/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb && sudo dpkg -i /tmp/chrome.deb",
     "get:sodium": "wget https://raw.githubusercontent.com/jedisct1/libsodium.js/master/dist/browsers/sodium.js -O src/sodium.js",
     "build": "./node_modules/webpack-cli/bin/cli.js",
-    "release": "npm run prerelease && npm run test && npm release",
+    "watch": "./node_modules/webpack-cli/bin/cli.js watch --env development",
+    "release": "npm run build && npm run test:run && npm release",
     "test:setup": "npx serve -l 8174",
     "test:run": "npx wdio",
-    "test": "npx serve -l 8174 & sleep 1; npx wdio"
+    "test:dirty": "npx serve -l 8174 & sleep 1; npx wdio"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>doauthor demo</title>
+</head>
+
+<body>
+    <label>Test ID:</label>
+    <pre id="test-id"></pre>
+    <label>Doauthor loading:</label>
+    <div id="doauthor-status" class="test">pending</div>
+    <label>URLSafe Base64 is tripping:</label>
+    <div id="base64-suite" class="test">pending</div>
+    <label>KDF works and makes valid signing keys:</label>
+    <div id="kdf" class="test">pending</div>
+    <ul>
+        <li>
+            <label>The slip:</label>
+            <pre id="slip"></pre>
+        </li>
+        <li>
+            <label>Signing key used:</label>
+            <pre id="kdf-info"></pre>
+        </li>
+    </ul>
+    <label>MainKeyInit2 generates a distinct key:</label>
+    <div id="distinct" class="test">pending</div>
+    <label>Main key gets reproduced from stored slip:</label>
+    <div id="localstorage" class="test">pending</div>
+</body>
+
+<script src="/dist/doauthor.js"></script>
+<script async defer src="/src/sodium.js"></script>
+<script>
+    const i = (x) => document.getElementById(x);
+    const ok = (x) => { i(x).innerText = "ok" };
+    const nok = (x) => { i(x).innerText = "fail" };
+    const testLoaded = () => {
+        if (__doauthorHasLoaded__ === true) {
+            ok("doauthor-status");
+        } else {
+            nok("doauthor-status");
+        }
+    };
+    const testBase64 = () => {
+        const x = doauthor.crypto.show("show / read are tripping");
+        if (x === doauthor.crypto.show(doauthor.crypto.read(x))) {
+            ok("base64-suite");
+        } else {
+            nok("base64-suite");
+        }
+    };
+    const password = "this is a password";
+    const testMainKeyDerivation = () => {
+        const show = doauthor.crypto.show;
+        const mkey = doauthor.crypto.mainKey(password);
+        const skp = doauthor.crypto.deriveSigningKeypair(mkey, 4);
+        const msg = "this is an authenticated message";
+        const detachedSig = doauthor.crypto.sign(msg, skp);
+        if (true === doauthor.crypto.verify(
+            msg,
+            detachedSig
+        )) {
+            ok("kdf");
+            i("slip").innerText =
+                doauthor.util.prettyPrint(JSON.parse(localStorage.getItem("slip")));
+            i("kdf-info").innerText =
+                doauthor.util.prettyPrint({
+                    "public": show(detachedSig.public),
+                    "signature": show(detachedSig.signature)
+                });
+        } else {
+            nok("kdf");
+        }
+        return mkey;
+    }
+    const testMainKeyInit2GeneratesDistinctKey = (mkey0) => {
+        const show = doauthor.crypto.show;
+        const mkey = doauthor.crypto.mainKey(password);
+        const [mkey1, _slip] = doauthor.crypto.mainKeyInit2(password, doauthor.crypto.slipConfig());
+        console.log(show(mkey), show(mkey1));
+        if (show(mkey) !== show(mkey1)) {
+            ok("distinct");
+        } else {
+            nok("distinct");
+        }
+        if (show(mkey0) === show(mkey)) {
+            ok("localstorage");
+        } else {
+            nok("localstorage");
+        }
+    }
+    (async () => {
+        const promise = DoAuthorBootstrapper.main()
+        console.log(promise);
+        promise.then(
+            () => {
+                i("test-id").innerText = doauthor.crypto.show(sodium.randombytes_buf(8));
+                testLoaded();
+                testBase64();
+                const mkey = testMainKeyDerivation();
+                testMainKeyInit2GeneratesDistinctKey(mkey);
+            }
+        )
+    })();
+</script>
+
+</html>

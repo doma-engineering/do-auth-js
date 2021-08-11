@@ -1,1 +1,68 @@
-var DoAuthor;(()=>{"use strict";var e={d:(o,t)=>{for(var r in t)e.o(t,r)&&!e.o(o,r)&&Object.defineProperty(o,r,{enumerable:!0,get:t[r]})},o:(e,o)=>Object.prototype.hasOwnProperty.call(e,o),r:e=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})}},o={};e.r(o),e.d(o,{main:()=>t,observePeriodMsec:()=>r,observeMany:()=>i});const t=async()=>(window.sodium={onload:e=>{maybePort=()=>window.location.port?":"+window.location.port:"",window.doAuth={server:window.location.protocol+"//"+window.location.hostname+maybePort(),saltSize:16,hashSize:32,keySize:32,defaultParams:{opsLimit:e.crypto_pwhash_OPSLIMIT_SENSITIVE,memLimit:5*e.crypto_pwhash_MEMLIMIT_MIN}},window.doAuth.crypto={},window.doAuth.crypto.show=o=>e.to_base64(o,e.base64_variants.URLSAFE),window.doAuth.crypto.read=o=>e.from_base64(o,e.base64_variants.URLSAFE),window.doAuth.crypto.mainKey=e=>(slipMaybe=localStorage.getItem("slip"),dp=doAuth.defaultParams,slipMaybe?doAuth.crypto.mainKeyReproduce2(e,JSON.parse(slipMaybe)):([mkey,slip]=doAuth.crypto.mainKeyInit2(e,{ops:dp.opsLimit,mem:dp.memLimit,saltSize:doAuth.saltSize}),localStorage.setItem("slip",JSON.stringify(slip)),mkey)),window.doAuth.crypto.mainKeyInit2=(o,t)=>(slip1={...t,salt:doAuth.crypto.show(e.randombytes_buf(t.saltSize))},mkey=doAuth.crypto.mainKeyReproduce2(o,slip1),[mkey,slip1]),window.doAuth.crypto.mainKeyReproduce2=(o,t)=>{let{ops:r,mem:i,saltSize:d,salt:a}=t;return mkey=e.crypto_pwhash(doAuth.hashSize,o,doAuth.crypto.read(a),r,i,e.crypto_pwhash_ALG_DEFAULT),mkey},window.doAuth.crypto.deriveSigningKeypair=(o,t)=>{mkd=e.crypto_kdf_derive_from_key(doAuth.keySize,t,"signsign",o);let{publicKey:r,privateKey:i}=e.crypto_sign_seed_keypair(mkd);return{public:r,secret:i}},window.doAuth.crypto.sign=(o,t)=>({public:t.public,signature:e.crypto_sign_detached(o,t.secret)}),window.doAuth.crypto.verify=(o,t)=>e.crypto_sign_verify_detached(t.signature,o,t.public),window.doAuth.crypto.bland_hash=o=>doAuth.crypto.show(e.crypto_generichash(doAuth.hashSize,o)),window.doAuth.crypto.canonicalise=function e(o){if("string"==typeof o||"number"==typeof o||"bigint"==typeof o)return o;if("object"==typeof o){if(!0===Array.isArray(o))return o.map((o=>e(o)));{var t=Object.keys(o);const i={...o};t.sort();var r=new Array;for(let o=0;o<t.length;o++)r.push([t[o],e(i[t[o]])]);return r}}},window.doAuth.credential={},window.doAuth.credential.proofless=e=>{ctxs=e["@context"];let{type:o,issuer:t,issuanceDate:r,credentialSubject:i}=e;return{"@context":ctxs,type:o,issuer:t,issuanceDate:r,credentialSubject:i}},window.doAuth.credential.prooflessJSON=e=>JSON.stringify(doAuth.crypto.canonicalise(doAuth.credential.proofless(e))),window.doAuth.credential.verify=(e,o)=>doAuth.crypto.verify(doAuth.credential.prooflessJSON(e),{public:o,signature:doAuth.crypto.read(e.proof.signature)}),window.doAuth.credential.verify64=(e,o)=>doAuth.credential.verify(e,doAuth.crypto.read(o)),window.__doAuthHasLoaded__=!0}},new Promise(i((()=>[window.__doAuthHasLoaded__])))),r=30,i=(e,o)=>(t,d)=>e().reduce(((e,o)=>e&&o),!1)?t(maybeVars):o&&o>0?d(new Error("Observer timed out")):void setTimeout(i.bind(void 0,e,t,d,timeLeft-r),r);DoAuthor=o})();
+/*
+ * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+var DoAuthorBootstrapper;
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/doauthor.js":
+/*!*************************!*\
+  !*** ./src/doauthor.js ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"main\": () => (/* binding */ main),\n/* harmony export */   \"observePeriodMsec\": () => (/* binding */ observePeriodMsec),\n/* harmony export */   \"observeMany\": () => (/* binding */ observeMany)\n/* harmony export */ });\nconst main = async () => {\n    window.sodium = {\n        onload: (sodium) => {\n            const maybePort = () => {\n                if (window.location.port) {\n                    return ':' + window.location.port\n                } else {\n                    return ''\n                }\n            };\n\n            window.doauthor = {\n                server: window.location.protocol + '//' + window.location.hostname + maybePort(),\n                saltSize: 16,\n                hashSize: 32,\n                keySize: 32,\n                defaultParams: {\n                    opsLimit: sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,\n                    memLimit: 5 * sodium.crypto_pwhash_MEMLIMIT_MIN\n                },\n            };\n\n            window.doauthor.crypto = {};\n\n            window.doauthor.crypto.show = (bs) => {\n                return sodium.to_base64(bs, sodium.base64_variants[\"URLSAFE\"]);\n            }\n\n            window.doauthor.crypto.read = (s) => {\n                return sodium.from_base64(s, sodium.base64_variants[\"URLSAFE\"]);\n            }\n\n            window.doauthor.crypto.slipConfig = () => {\n                return {\n                    ops: doauthor.defaultParams.opsLimit,\n                    mem: doauthor.defaultParams.memLimit,\n                    saltSize: doauthor.saltSize\n                };\n            }\n\n            window.doauthor.crypto.mainKey = (pass) => {\n                const slipMaybe = localStorage.getItem(\"slip\");\n                if (slipMaybe) {\n                    return doauthor.crypto.mainKeyReproduce2(pass, JSON.parse(slipMaybe));\n                } else {\n                    let [mkey, slip] = doauthor.crypto.mainKeyInit2(pass, doauthor.crypto.slipConfig());\n                    localStorage.setItem(\"slip\", JSON.stringify(slip));\n                    return mkey;\n                }\n            }\n\n            window.doauthor.crypto.mainKeyInit2 = (pass, slipConfig) => {\n                const slip1 = { ...slipConfig, salt: doauthor.crypto.show(sodium.randombytes_buf(slipConfig.saltSize)) };\n                const mkey = doauthor.crypto.mainKeyReproduce2(pass, slip1);\n                return [mkey, slip1];\n            }\n\n            window.doauthor.crypto.mainKeyReproduce2 = (pass, slip) => {\n                let { ops, mem, salt } = slip;\n                const mkey = sodium.crypto_pwhash(\n                    doauthor.hashSize, // kinda hardcoded but ok\n                    pass,\n                    doauthor.crypto.read(salt),\n                    ops,\n                    mem,\n                    sodium.crypto_pwhash_ALG_DEFAULT\n                );\n                return mkey;\n            }\n\n            window.doauthor.crypto.deriveSigningKeypair = (mkey, n) => {\n                const mkd = sodium.crypto_kdf_derive_from_key(doauthor.keySize, n, \"signsign\", mkey);\n                let { publicKey, privateKey } = sodium.crypto_sign_seed_keypair(mkd);\n                return { public: publicKey, secret: privateKey };\n            }\n\n            window.doauthor.crypto.sign = (msg, kp) => {\n                return { public: kp.public, signature: sodium.crypto_sign_detached(msg, kp.secret) };\n            }\n\n            window.doauthor.crypto.verify = (msg, detached) => {\n                return sodium.crypto_sign_verify_detached(detached.signature, msg, detached.public);\n            }\n\n            window.doauthor.crypto.bland_hash = (msg) => {\n                return doauthor.crypto.show(sodium.crypto_generichash(doauthor.hashSize, msg));\n            }\n\n            /*\n             * TODO:\n             * console.log's are left in to show what the author\n             * checked. They are NOT A SUFFICIENT EVIDENCE that this\n             * function does what it's supposed to do and proper\n             * invariant testing and audit are absolutely necessary to\n             * run it in production.\n             */\n            function _canonicalise(x) {\n                // console.log(\"Canonicalising \", x)\n                if (typeof (x) === \"string\" || typeof (x) === \"number\" || typeof (x) === \"bigint\") {\n                    // console.log(\"It's just a value\", x)\n                    return x;\n                } else if (typeof (x) === \"object\") {\n                    if (Array.isArray(x) === true) {\n                        return x.map(x => _canonicalise(x));\n                    } else {\n                        var ks = Object.keys(x);\n                        const x1 = { ...x };\n                        ks.sort();\n                        var y = new Array();\n                        for (let i = 0; i < ks.length; i++) {\n                            // console.log(\"Got object, working on adding **\", ks[i], \"**, the\", i, \"th element of\", ks)\n                            y.push([ks[i], _canonicalise(x1[ks[i]], y)]);\n                            // console.log(\"Accumulator so far:\", [...y])\n                        }\n                        return y;\n                    }\n                }\n            };\n\n            window.doauthor.crypto.canonicalise = _canonicalise;\n\n            window.doauthor.credential = {};\n\n            window.doauthor.credential.proofless = (cred) => {\n                ctxs = cred['@context'];\n                let { type, issuer, issuanceDate, credentialSubject } = cred;\n                return { '@context': ctxs, type: type, issuer: issuer, issuanceDate: issuanceDate, credentialSubject: credentialSubject };\n            };\n\n            window.doauthor.credential.prooflessJSON = (cred) => {\n                return JSON.stringify(\n                    doauthor.crypto.canonicalise(\n                        doauthor.credential.proofless(cred)\n                    )\n                );\n            };\n\n            window.doauthor.credential.verify = (cred, pk) => {\n                return doauthor.crypto.verify(\n                    doauthor.credential.prooflessJSON(cred),\n                    {\n                        public: pk,\n                        signature: doauthor.crypto.read(cred.proof.signature)\n                    }\n                );\n            };\n\n            window.doauthor.credential.verify64 = (cred, pk) => {\n                return doauthor.credential.verify(cred, doauthor.crypto.read(pk));\n            };\n\n            window.doauthor.util = {};\n\n            window.doauthor.util.prettyPrint = (x) => JSON.stringify(x, null, 2);\n\n            window.__doauthorHasLoaded__ = true;\n        }\n    }\n    return new Promise(observeMany(() => [window.__doauthorHasLoaded__]));\n}\n\nconst observePeriodMsec = 30;\n\nconst observeMany = (varsF, timeLeft) => (resolveF, rejectF) => {\n    //console.log(\"tick\", varsF());\n    var timeLeft1 = undefined;\n    if (varsF().reduce((acc, v) => acc && v, true)) {\n        return resolveF(varsF());\n    }\n    if (typeof timeLeft !== 'undefined') {\n        if (timeLeft > 0) {\n            return rejectF(new Error(\"Observer timed out\"));\n        } else {\n            timeLeft1 = timeLeft - observePeriodMsec;\n        }\n    }\n    return setTimeout(\n        observeMany(varsF, timeLeft1).bind(undefined, resolveF, rejectF),\n        observePeriodMsec\n    );\n}\n\n\n//# sourceURL=webpack://DoAuthorBootstrapper/./src/doauthor.js?");
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module can't be inlined because the eval devtool is used.
+/******/ 	var __webpack_exports__ = {};
+/******/ 	__webpack_modules__["./src/doauthor.js"](0, __webpack_exports__, __webpack_require__);
+/******/ 	DoAuthorBootstrapper = __webpack_exports__;
+/******/ 	
+/******/ })()
+;
