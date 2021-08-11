@@ -93,7 +93,6 @@
     }
     (async () => {
         const promise = DoAuthorBootstrapper.main()
-        console.log(promise);
         promise.then(
             () => {
                 i("test-id").innerText = doauthor.crypto.show(sodium.randombytes_buf(8));

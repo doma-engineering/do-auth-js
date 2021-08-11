@@ -1,10 +1,12 @@
 {
   "name": "doauthor",
-  "version": "0.0.2",
+  "version": "0.2.0",
   "description": "A client for DoAuth: a fast, lean and reliable authentication server based on verifiable credentials standard ",
   "main": "src/index.js",
   "scripts": {
-    "get:chrome": "wget https://doma.2038.io/software/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb && sudo dpkg -i /tmp/chrome.deb",
+    "bootstrap": "npm-run-all get:*",
+    "get:hooks": "cp ./pre-commit .git/hooks/",
+    "get:chrome": "sudo apt install fonts-liberation && wget https://doma.2038.io/software/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb && sudo dpkg -i /tmp/chrome.deb && rm -v /tmp/chrome.deb",
     "get:sodium": "wget https://raw.githubusercontent.com/jedisct1/libsodium.js/master/dist/browsers/sodium.js -O src/sodium.js",
     "build": "./node_modules/webpack-cli/bin/cli.js",
     "watch": "./node_modules/webpack-cli/bin/cli.js watch --env development",
@@ -37,6 +39,7 @@
     "@wdio/mocha-framework": "^7.9.1",
     "@wdio/spec-reporter": "^7.9.0",
     "chromedriver": "^92.0.1",
+    "npm-run-all": "^4.1.5",
     "path-browserify": "^1.0.1",
     "serve": "^12.0.0",
     "wdio-chromedriver-service": "^7.2.0",
