@@ -15,7 +15,6 @@ describe('doauthor embedded test suite', () => {
             actual.push(okMaybe);
             ideal.push("ok");
         }
-        console.log("BLIMEY", ideal, actual);
         assert.deepEqual(ideal, actual);
     });
     it('preserves data in localStorage', async () => {

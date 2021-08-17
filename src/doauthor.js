@@ -72,12 +72,11 @@ export const main = async () => {
             window.doauthor.crypto.deriveSigningKeypair = (mkey, n) => {
                 const mkd = sodium.crypto_kdf_derive_from_key(doauthor.keySize, n, "signsign", mkey);
                 let { publicKey, privateKey } = sodium.crypto_sign_seed_keypair(mkd);
-                doauthor.did.memorizePublicKey(doauthor.did.from_pk(publicKey), publicKey);
+                doauthor.did.memorisePublicKey(publicKey);
                 return { public: publicKey, secret: privateKey };
             }
 
             window.doauthor.crypto.sign = (msg, kp) => {
-                console.log("Signing", msg, "with", kp)
                 return { public: kp.public, signature: sodium.crypto_sign_detached(msg, kp.secret) };
             }
 
@@ -123,7 +122,6 @@ export const main = async () => {
                 const proof_map = doauthor.proof.from_signature(issuer, detached_signature["signature"]);
                 var res = { ...the_map };
                 res[opts["proofField"]] = proof_map;
-                console.log("Signed", JSON.stringify(canonical_claim));
                 return res;
             }
 
@@ -132,7 +130,6 @@ export const main = async () => {
                     overrides = {};
                 }
 
-                console.log("Verifying", verifiable_map, "with overrides", overrides);
 
                 const opts0 = {
                     "proofField": "proof",
@@ -171,7 +168,6 @@ export const main = async () => {
                         "public": doauthor.crypto.read(pk),
                         "signature": doauthor.crypto.read(proof[opts["signatureField"]]),
                     };
-                    console.log("Sig is", sig, "ds", reconstructed_detached_sig, "msg", JSON.stringify(verifiable_canonical));
                     const is_valid = doauthor.crypto.verify(JSON.stringify(verifiable_canonical), reconstructed_detached_sig);
                     return is_valid && acc;
                 }, true);
@@ -184,6 +180,12 @@ export const main = async () => {
              * function does what it's supposed to do and proper
              * invariant testing and audit are absolutely necessary to
              * run it in production.
+             *
+             * UPDATE (Aug 18th, 2021):
+             * With more test coverage for simple cases, we have more evidence
+             * that canonicalise works as intended, but we still need to attack
+             * this function with as messed up test cases as possible and
+             * compare it with reference implementation.
              */
             function _canonicalise(x) {
                 // console.log("Canonicalising ", x)
@@ -221,6 +223,32 @@ export const main = async () => {
             }
 
             window.doauthor.credential = {};
+
+            window.doauthor.credential.from_claim = (kp, claim, misc) => {
+                const tau0 = doauthor.util.isoUtcNow();
+                const did = doauthor.did.from_pk(kp["public"]);
+                const issuer = did;
+                var cred_so_far = {
+                    "@context": [],
+                    "type": [],
+                    "issuer": issuer,
+                    "issuanceDate": tau0,
+                    "credentialSubject": claim,
+                }
+                if (typeof (misc) === 'object') {
+                    ["effectiveDate", "validFrom", "validUntil"].map((x) => {
+                        if (!(x in cred_so_far) && (x in misc)) {
+                            cred_so_far[x] = misc[x];
+                        }
+                    });
+                    ["issuanceDate"].map((x) => {
+                        if (x in misc) {
+                            cred_so_far[x] = misc[x];
+                        }
+                    })
+                }
+                return doauthor.crypto.sign_map(kp, cred_so_far);
+            }
 
             window.doauthor.credential.proofless = (cred) => {
                 ctxs = cred['@context'];
@@ -269,19 +297,17 @@ export const main = async () => {
                 if (pk_by_did === null) {
                     const did_public_resp = await fetch(doauthor.server + "/did/public/" + did_str).then(resp => resp.json);
                     pk_by_did = did_public_resp["public"];
-                    doauthor.did.memorizePublicKey64(did_str, pk_by_did);
+                    doauthor.did.memorisePublicKey64(pk_by_did);
                 }
                 return pk_by_did;
             }
 
-            window.doauthor.did.memorizePublicKey64 = (did_str, pk64) => {
-                console.log("Storing", pk64, "under", did_str);
-                return localStorage.setItem("pk|" + did_str, pk64);
+            window.doauthor.did.memorisePublicKey64 = (pk64) => {
+                return localStorage.setItem("pk|" + doauthor.did.from_pk64(pk64), pk64);
             }
 
-            window.doauthor.did.memorizePublicKey = (did_str, pk) => {
-                console.log("Memorizing PK");
-                return doauthor.did.memorizePublicKey64(did_str, doauthor.crypto.show(pk));
+            window.doauthor.did.memorisePublicKey = (pk) => {
+                return doauthor.did.memorisePublicKey64(doauthor.crypto.show(pk));
             }
 
             window.doauthor.util = {};

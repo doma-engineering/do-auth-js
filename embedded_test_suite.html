@@ -30,6 +30,26 @@
     <div id="localstorage" class="test">pending</div>
     <label>"Verify map" of "sign map" is "true":</label>
     <div id="verify_map__sign_map" class="test">pending</div>
+    <label>Credential compliance with the reference implementation:</label>
+    <div id="credential-compatibility" class="test">pending</div>
+    <pre id="credential-target">
+    {
+        "@context": [],
+        "credentialSubject": {
+            "hello": "world"
+        },
+        "issuanceDate": "2021-08-17T22:49:56Z",
+        "issuer": "did:doma:JG8_wbJ-rpAWQF39eNoXp4XUXEPIZ4wnS3YOQto4B5Q=",
+        "proof": {
+            "signature": "2Sh0-cQ_HKcdwSNxycJkWIP_8O4SwnZHcqUaBSbMmoD0Tk-82L5LBEJnpY5MMgyClaA1UrLl5K49yB_b_91zBw==",
+            "timestamp": "2021-08-17T22:49:56Z",
+            "verificationMethod": "did:doma:JG8_wbJ-rpAWQF39eNoXp4XUXEPIZ4wnS3YOQto4B5Q="
+        },
+        "type": []
+    }
+    </pre>
+    <label>Credentials are verifiable:</label>
+    <div id="verifiable-credentials" class="test">pending</div>
 </body>
 
 <script src="/dist/doauthor.js"></script>
@@ -102,6 +122,27 @@
         }
         return doauthor.crypto.deriveSigningKeypair(mkey, 20);
     }
+    const testCredentialCompatibility = () => {
+        const kp = {
+            "public": doauthor.crypto.read("dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="),
+            "secret": doauthor.crypto.read("H9xUHnIAxdYuslQ8UULO8A0eXf6gH2ySEfo2-kdZZow32Nza1n_O_YdP4Qg7JuCbt8ieMOZkFypb-UbAWVLKCg==")
+        };
+        const cred_ours = doauthor.credential.from_claim(kp, { "hello": "world" }, { "issuanceDate": "2021-08-17T22:49:56Z" });
+        const cred_ref = JSON.parse(i("credential-target").innerText);
+        const our_sig = cred_ours["proof"]["signature"];
+        const ref_sig = cred_ref["proof"]["signature"];
+        if (our_sig === ref_sig) {
+            ok("credential-compatibility");
+        } else {
+            nok("credential-compatibility");
+        }
+        doauthor.did.memorisePublicKey(kp["public"]);
+        if (doauthor.crypto.verify_map(cred_ours)) {
+            ok("verifiable-credentials");
+        } else {
+            nok("verifiable-credentials");
+        }
+    }
     (async () => {
         const promise = DoAuthorBootstrapper.main()
         promise.then(
@@ -112,6 +153,7 @@
                 const mkey = testMainKeyDerivation();
                 const skp = testMainKeyInit2GeneratesDistinctKey(mkey);
                 await testCryptoVerifyMapOfSignMapIsTrue(skp);
+                testCredentialCompatibility();
             }
         )
     })();
