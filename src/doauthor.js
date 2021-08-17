@@ -10,7 +10,8 @@ export const main = async () => {
             };
 
             window.doauthor = {
-                server: window.location.protocol + '//' + window.location.hostname + maybePort(),
+                /* server: window.location.protocol + '//' + window.location.hostname + maybePort(), */
+                server: "https://maja.doma.dev",
                 saltSize: 16,
                 hashSize: 32,
                 keySize: 32,
@@ -71,10 +72,12 @@ export const main = async () => {
             window.doauthor.crypto.deriveSigningKeypair = (mkey, n) => {
                 const mkd = sodium.crypto_kdf_derive_from_key(doauthor.keySize, n, "signsign", mkey);
                 let { publicKey, privateKey } = sodium.crypto_sign_seed_keypair(mkd);
+                doauthor.did.memorizePublicKey(doauthor.did.from_pk(publicKey), publicKey);
                 return { public: publicKey, secret: privateKey };
             }
 
             window.doauthor.crypto.sign = (msg, kp) => {
+                console.log("Signing", msg, "with", kp)
                 return { public: kp.public, signature: sodium.crypto_sign_detached(msg, kp.secret) };
             }
 
@@ -84,6 +87,94 @@ export const main = async () => {
 
             window.doauthor.crypto.bland_hash = (msg) => {
                 return doauthor.crypto.show(sodium.crypto_generichash(doauthor.hashSize, msg));
+            }
+
+            window.doauthor.crypto.sign_map = (kp, the_map, overrides) => {
+                if (typeof (overrides) === 'undefined') {
+                    overrides = {};
+                }
+
+                const opts0 = {
+                    "proofField": "proof",
+                    "signatureField": "signature",
+                    "keyField": "verificationMethod",
+                    "keyFieldConstructor": (pk) => {
+                        const pk64 = doauthor.crypto.show(pk);
+                        const hash = doauthor.crypto.bland_hash(pk64);
+                        return "did:doma:" + hash;
+                    },
+                    "ignore": ["id"],
+                };
+
+                const opts = Object.assign({}, opts0, overrides);
+
+                var mut_the_map = { ...the_map };
+
+                opts["ignore"].reduce((acc, x) => {
+                    delete mut_the_map[x];
+                })
+
+                const to_prove = { ...mut_the_map };
+
+                const canonical_claim = doauthor.crypto.canonicalise(to_prove);
+                const detached_signature = doauthor.crypto.sign(JSON.stringify(canonical_claim), kp);
+                const did = opts["keyFieldConstructor"](kp["public"]);
+                const issuer = did;
+                const proof_map = doauthor.proof.from_signature(issuer, detached_signature["signature"]);
+                var res = { ...the_map };
+                res[opts["proofField"]] = proof_map;
+                console.log("Signed", JSON.stringify(canonical_claim));
+                return res;
+            }
+
+            window.doauthor.crypto.verify_map = (verifiable_map, overrides) => {
+                if (typeof (overrides) === 'undefined') {
+                    overrides = {};
+                }
+
+                console.log("Verifying", verifiable_map, "with overrides", overrides);
+
+                const opts0 = {
+                    "proofField": "proof",
+                    "signatureField": "signature",
+                    "keyExtractor": (proof) => doauthor.did.fetchPublicKey(proof["verificationMethod"]),
+                    "ignore": ["id"]
+                };
+
+                const opts = Object.assign({}, opts0, overrides);
+
+                var mut_verifiable_map = { ...verifiable_map };
+
+                const verifiable_canonical = doauthor.crypto.canonicalise(
+                    (() => {
+                        opts["ignore"].concat(opts["proofField"]).reduce((_acc, x) => { delete mut_verifiable_map[x]; })
+                        return { ...mut_verifiable_map };
+                    })()
+                );
+
+                var mut_proofs = [];
+
+                var zoom_proofs = verifiable_map[opts["proofField"]];
+
+                if (Array.isArray(zoom_proofs)) {
+                    mut_proofs = [...zoom_proofs];
+                } else { // In this case, by standard, we have a single proof.
+                    mut_proofs = [zoom_proofs];
+                }
+
+                const proofs = [...mut_proofs];
+
+                return proofs.reduce(async (acc, proof) => {
+                    const pk = await opts["keyExtractor"](proof);
+                    const sig = proof[opts["signatureField"]];
+                    const reconstructed_detached_sig = {
+                        "public": doauthor.crypto.read(pk),
+                        "signature": doauthor.crypto.read(proof[opts["signatureField"]]),
+                    };
+                    console.log("Sig is", sig, "ds", reconstructed_detached_sig, "msg", JSON.stringify(verifiable_canonical));
+                    const is_valid = doauthor.crypto.verify(JSON.stringify(verifiable_canonical), reconstructed_detached_sig);
+                    return is_valid && acc;
+                }, true);
             }
 
             /*
@@ -119,6 +210,16 @@ export const main = async () => {
 
             window.doauthor.crypto.canonicalise = _canonicalise;
 
+            window.doauthor.proof = {};
+
+            window.doauthor.proof.from_signature64 = (issuer, sig64) => {
+                return { "verificationMethod": issuer, "signature": sig64, "timestamp": doauthor.util.isoUtcNow() };
+            }
+
+            window.doauthor.proof.from_signature = (issuer, sig) => {
+                return doauthor.proof.from_signature64(issuer, doauthor.crypto.show(sig));
+            }
+
             window.doauthor.credential = {};
 
             window.doauthor.credential.proofless = (cred) => {
@@ -149,9 +250,49 @@ export const main = async () => {
                 return doauthor.credential.verify(cred, doauthor.crypto.read(pk));
             };
 
+            window.doauthor.did = {};
+
+            window.doauthor.did.from_pk = (pk) => {
+                return doauthor.did.from_pk64(doauthor.crypto.show(pk));
+            }
+
+            window.doauthor.did.from_pk64 = (pk64) => {
+                return "did:doma:" + doauthor.crypto.bland_hash(pk64);
+            }
+
+            window.doauthor.did.recallPublicKey = (did_str) => {
+                return localStorage.getItem("pk|" + did_str);
+            }
+
+            window.doauthor.did.fetchPublicKey = async (did_str) => {
+                var pk_by_did = doauthor.did.recallPublicKey(did_str);
+                if (pk_by_did === null) {
+                    const did_public_resp = await fetch(doauthor.server + "/did/public/" + did_str).then(resp => resp.json);
+                    pk_by_did = did_public_resp["public"];
+                    doauthor.did.memorizePublicKey64(did_str, pk_by_did);
+                }
+                return pk_by_did;
+            }
+
+            window.doauthor.did.memorizePublicKey64 = (did_str, pk64) => {
+                console.log("Storing", pk64, "under", did_str);
+                return localStorage.setItem("pk|" + did_str, pk64);
+            }
+
+            window.doauthor.did.memorizePublicKey = (did_str, pk) => {
+                console.log("Memorizing PK");
+                return doauthor.did.memorizePublicKey64(did_str, doauthor.crypto.show(pk));
+            }
+
             window.doauthor.util = {};
 
             window.doauthor.util.prettyPrint = (x) => JSON.stringify(x, null, 2);
+
+            window.doauthor.util.isoUtcNow = () => {
+                var date = new Date();
+                var isoDate = date.toISOString().slice(0, -5);
+                return isoDate + "Z";
+            }
 
             window.__doauthorHasLoaded__ = true;
         }

@@ -49,6 +49,8 @@ Now you can run `npm run watch` and hack on `src/doauthor.js`.
 
 ## Testing
 
+Make sure you have packed your code into `dist` by either having `npm run watch` on or `npm run build`.
+
 Run `npm run test:setup` in a terminal. It will serve `embedded_test_suite.html` so that `wdio` can run and test it.
 
 Now run `npm run test:run` to perform the actual tests.

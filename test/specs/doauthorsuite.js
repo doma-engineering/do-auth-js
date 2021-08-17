@@ -8,10 +8,15 @@ describe('doauthor embedded test suite', () => {
         const title = await browser.getTitle();
         assert.equal(title, "doauthor demo");
         const checks = await $$('.test');
-        checks.reduce(async (_acc, x) => {
+        var ideal = [];
+        var actual = [];
+        for (const x of checks) {
             const okMaybe = await x.getText();
-            assert.equal(okMaybe, "ok");
-        });
+            actual.push(okMaybe);
+            ideal.push("ok");
+        }
+        console.log("BLIMEY", ideal, actual);
+        assert.deepEqual(ideal, actual);
     });
     it('preserves data in localStorage', async () => {
         await browser.url('http://localhost:8174/embedded_test_suite.html');

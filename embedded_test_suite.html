@@ -28,6 +28,8 @@
     <div id="distinct" class="test">pending</div>
     <label>Main key gets reproduced from stored slip:</label>
     <div id="localstorage" class="test">pending</div>
+    <label>"Verify map" of "sign map" is "true":</label>
+    <div id="verify_map__sign_map" class="test">pending</div>
 </body>
 
 <script src="/dist/doauthor.js"></script>
@@ -75,11 +77,19 @@
         }
         return mkey;
     }
+    const testCryptoVerifyMapOfSignMapIsTrue = async (skp) => {
+        const verifiable_map = doauthor.crypto.sign_map(skp, { "hello": { "dangerous": { "world": ["of", "JavaScript"] } } });
+        const res = await doauthor.crypto.verify_map(verifiable_map);
+        if (true === res) {
+            ok("verify_map__sign_map");
+        } else {
+            nok("verify_map__sign_map");
+        }
+    }
     const testMainKeyInit2GeneratesDistinctKey = (mkey0) => {
         const show = doauthor.crypto.show;
         const mkey = doauthor.crypto.mainKey(password);
         const [mkey1, _slip] = doauthor.crypto.mainKeyInit2(password, doauthor.crypto.slipConfig());
-        console.log(show(mkey), show(mkey1));
         if (show(mkey) !== show(mkey1)) {
             ok("distinct");
         } else {
@@ -90,16 +100,18 @@
         } else {
             nok("localstorage");
         }
+        return doauthor.crypto.deriveSigningKeypair(mkey, 20);
     }
     (async () => {
         const promise = DoAuthorBootstrapper.main()
         promise.then(
-            () => {
+            async () => {
                 i("test-id").innerText = doauthor.crypto.show(sodium.randombytes_buf(8));
                 testLoaded();
                 testBase64();
                 const mkey = testMainKeyDerivation();
-                testMainKeyInit2GeneratesDistinctKey(mkey);
+                const skp = testMainKeyInit2GeneratesDistinctKey(mkey);
+                await testCryptoVerifyMapOfSignMapIsTrue(skp);
             }
         )
     })();
