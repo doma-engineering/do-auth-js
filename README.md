@@ -9,13 +9,13 @@ For usage as a library, consult `embedded_test_suite.html`.
 Fetch JS synchronously from unpkg.com:
 
 ```
-<script src="https://unpkg.com/doauthor@0.2.2/dist/doauthor.js"></script>
+<script src="https://unpkg.com/doauthor@0.3.0/dist/doauthor.js"></script>
 ```
 
 Defer loading of sodium.js it's an important work around the issue that this sodium wrapper [doesn't provide promise-based API](https://github.com/jedisct1/libsodium.js/issues/284) for loading:
 
 ```
-<script src="https://unpkg.com/doauthor@0.2.2/dist/sodium.js"></script>
+<script src="https://unpkg.com/doauthor@0.3.0/dist/sodium.js"></script>
 ```
 
 Then add the following async call after `</body>`:

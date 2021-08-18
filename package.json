@@ -1,6 +1,6 @@
 {
   "name": "doauthor",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A client for DoAuth: a fast, lean and reliable authentication server based on verifiable credentials standard ",
   "main": "src/index.js",
   "scripts": {
