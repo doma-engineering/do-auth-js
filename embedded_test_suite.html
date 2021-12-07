@@ -32,18 +32,42 @@
     <div id="verify_map__sign_map" class="test">pending</div>
     <label>Credential compliance with the reference implementation:</label>
     <div id="credential-compatibility" class="test">pending</div>
+    <!--
+    iex(19)> %{public: "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=", secret: "H9xUHnIAxdYuslQ8UULO8A0eXf6gH2ySEfo2-kdZZow32Nza1n_O_YdP4Qg7JuCbt8ieMOZkFypb-UbAWVLKCg=="} |> Witchcraft.Functor.map(fn x -> Uptight.Base.mk_url!(x).raw |> Uptight.Binary.new!() end) |> DoAuth.Credential.mk_credential!(%{"hello" => "world"}, issuanceDate: ~N[2021-08-17 22:49:56] |> DateTime.from_naive!("Etc/UTC")) |> Jason.encode!(pretty: true) |> IO.puts()
+    {
+    "@context": [],
+    "credentialSubject": {
+        "hello": "world"
+    },
+    "id": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+    "issuanceDate": "2021-08-17T22:49:56Z",
+    "issuer": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=",
+    "proof": {
+        "created": "2021-12-07T13:57:55.931383Z",
+        "proofPurpose": "assertionMethod",
+        "signature": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+        "type": "Libsodium2021",
+        "verificationMethod": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="
+    },
+    "type": []
+    }
+    :ok
+    -->
     <pre id="credential-target">
     {
         "@context": [],
         "credentialSubject": {
             "hello": "world"
         },
+        "id": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
         "issuanceDate": "2021-08-17T22:49:56Z",
-        "issuer": "did:doma:JG8_wbJ-rpAWQF39eNoXp4XUXEPIZ4wnS3YOQto4B5Q=",
+        "issuer": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=",
         "proof": {
-            "signature": "2Sh0-cQ_HKcdwSNxycJkWIP_8O4SwnZHcqUaBSbMmoD0Tk-82L5LBEJnpY5MMgyClaA1UrLl5K49yB_b_91zBw==",
-            "timestamp": "2021-08-17T22:49:56Z",
-            "verificationMethod": "did:doma:JG8_wbJ-rpAWQF39eNoXp4XUXEPIZ4wnS3YOQto4B5Q="
+            "created": "2021-12-07T13:57:55.931383Z",
+            "proofPurpose": "assertionMethod",
+            "signature": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+            "type": "Libsodium2021",
+            "verificationMethod": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="
         },
         "type": []
     }

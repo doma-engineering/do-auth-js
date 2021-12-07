@@ -99,8 +99,9 @@ export const main = async () => {
                     "keyField": "verificationMethod",
                     "keyFieldConstructor": (pk) => {
                         const pk64 = doauthor.crypto.show(pk);
-                        const hash = doauthor.crypto.bland_hash(pk64);
-                        return "did:doma:" + hash;
+                        /* const hash = doauthor.crypto.bland_hash(pk64);
+                        return "did:doma:" + hash; */
+                        return pk64;
                     },
                     "ignore": ["id"],
                 };
@@ -285,7 +286,8 @@ export const main = async () => {
             }
 
             window.doauthor.did.from_pk64 = (pk64) => {
-                return "did:doma:" + doauthor.crypto.bland_hash(pk64);
+                /* return "did:doma:" + doauthor.crypto.bland_hash(pk64); */
+                return pk64;
             }
 
             window.doauthor.did.recallPublicKey = (did_str) => {
@@ -314,10 +316,14 @@ export const main = async () => {
 
             window.doauthor.util.prettyPrint = (x) => JSON.stringify(x, null, 2);
 
-            window.doauthor.util.isoUtcNow = () => {
+            window.doauthor.util.isoUtcNowOld = () => {
                 var date = new Date();
                 var isoDate = date.toISOString().slice(0, -5);
                 return isoDate + "Z";
+            }
+
+            window.doauthor.util.isoUtcNow = () => {
+                return (new Date()).toISOString();
             }
 
             window.__doauthorHasLoaded__ = true;
