@@ -72,8 +72,69 @@
         "type": []
     }
     </pre>
+    <label>Presentations compliance with the reference implementation:</label>
+    <div id="presentation-compatibility" class="test">pending</div>
+    <!--
+iex(18)> DoAuth.Credential.present_credential_map(kp, cred_map, issuanceDate: tau1) |> Uptight.Result.from_ok() |> Jason.encode!(pretty: true) |> IO.puts
+{
+  "issuanceDate": "2021-12-19T02:31:30Z",
+  "issuer": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=",
+  "proof": {
+    "signature": "RYa98wyKQ8Gl2GrtYVxUFXPs7m9PFL9wT09xv368dJzK9aJIJ8gZreiugOuKCLtljFex2QWH58Az79x99PyGAg==",
+    "timestamp": "2021-12-19 04:05:50.471122Z",
+    "verificationMethod": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="
+  },
+  "verifiableCredential": {
+    "@context": [],
+    "credentialSubject": {
+      "hello": "world"
+    },
+    "id": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+    "issuanceDate": "2021-08-17T22:49:56Z",
+    "issuer": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=",
+    "proof": {
+      "created": "2021-12-07T13:57:55.931383Z",
+      "proofPurpose": "assertionMethod",
+      "signature": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+      "type": "Libsodium2021",
+      "verificationMethod": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="
+    },
+    "type": []
+  }
+}
+    -->
+    <pre id="presentation-target">
+        {
+            "issuanceDate": "2021-12-19T02:31:30Z",
+            "issuer": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=",
+            "proof": {
+              "signature": "RYa98wyKQ8Gl2GrtYVxUFXPs7m9PFL9wT09xv368dJzK9aJIJ8gZreiugOuKCLtljFex2QWH58Az79x99PyGAg==",
+              "timestamp": "2021-12-19 04:05:50.471122Z",
+              "verificationMethod": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="
+            },
+            "verifiableCredential": {
+              "@context": [],
+              "credentialSubject": {
+                "hello": "world"
+              },
+              "id": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+              "issuanceDate": "2021-08-17T22:49:56Z",
+              "issuer": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ=",
+              "proof": {
+                "created": "2021-12-07T13:57:55.931383Z",
+                "proofPurpose": "assertionMethod",
+                "signature": "5rQ5V1M3QzCCFOH_w1xu0ondNWLyn8sd4-p3-AiS3GXKLjO4J4BUWLM1xH-CfFcd-LPj-ys908SjHMa-WOq-AA==",
+                "type": "Libsodium2021",
+                "verificationMethod": "dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="
+              },
+              "type": []
+            }
+          }
+    </pre>
     <label>Credentials are verifiable:</label>
     <div id="verifiable-credentials" class="test">pending</div>
+    <label>Presentations are verifiable:</label>
+    <div id="verifiable-presentations" class="test">pending</div>
 </body>
 
 <script src="/dist/doauthor.js"></script>
@@ -166,6 +227,30 @@
         } else {
             nok("verifiable-credentials");
         }
+        return cred_ours;
+    }
+    const testPresentationCompatibility = () => {
+        const kp = {
+            "public": doauthor.crypto.read("dW8Z2z2icecILIyAdrjaOqkurfC99ocFR87r9QX_mJQ="),
+            "secret": doauthor.crypto.read("H9xUHnIAxdYuslQ8UULO8A0eXf6gH2ySEfo2-kdZZow32Nza1n_O_YdP4Qg7JuCbt8ieMOZkFypb-UbAWVLKCg==")
+        };
+        cred = JSON.parse(i("credential-target").innerText);
+        const pres_ours = doauthor.credential.present_credential(kp, cred, { "issuanceDate": "2021-12-19T02:31:30Z" });
+        console.log(pres_ours, JSON.stringify(pres_ours, null, 2));
+        const pres_ref = JSON.parse(i("presentation-target").innerText);
+        const our_sig = pres_ours["proof"]["signature"];
+        const ref_sig = pres_ref["proof"]["signature"];
+        if (our_sig === ref_sig) {
+            ok("presentation-compatibility");
+        } else {
+            nok("presentation-compatibility");
+        }
+        doauthor.did.memorisePublicKey(kp["public"]);
+        if (doauthor.crypto.verify_map(pres_ours)) {
+            ok("verifiable-presentations");
+        } else {
+            nok("verifiable-presentations");
+        }
     }
     (async () => {
         const promise = DoAuthorBootstrapper.main()
@@ -177,7 +262,8 @@
                 const mkey = testMainKeyDerivation();
                 const skp = testMainKeyInit2GeneratesDistinctKey(mkey);
                 await testCryptoVerifyMapOfSignMapIsTrue(skp);
-                testCredentialCompatibility();
+                const cred = testCredentialCompatibility();
+                testPresentationCompatibility(cred);
             }
         )
     })();

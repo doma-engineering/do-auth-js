@@ -251,6 +251,26 @@ export const main = async () => {
                 return doauthor.crypto.sign_map(kp, cred_so_far);
             }
 
+            window.doauthor.credential.present_credential = (kp, cred, misc) => {
+                var presentation_claim_so_far = {
+                    "verifiableCredential": cred,
+                    "issuer": doauthor.did.from_pk(kp["public"])
+                };
+                if (typeof misc === 'object') {
+                    ["id", "holder", "credentialSubject"].map((x) => {
+                        if (!(x in presentation_claim_so_far) && (x in misc)) {
+                            presentation_claim_so_far[x] = misc[x];
+                        }
+                    });
+                    ["issuanceDate"].map((x) => {
+                        if (x in misc) {
+                            presentation_claim_so_far[x] = misc[x];
+                        }
+                    });
+                }
+                return doauthor.crypto.sign_map(kp, presentation_claim_so_far);
+            }
+
             window.doauthor.credential.proofless = (cred) => {
                 ctxs = cred['@context'];
                 let { type, issuer, issuanceDate, credentialSubject } = cred;
