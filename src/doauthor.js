@@ -1,4 +1,8 @@
 export const main = async () => {
+    if (typeof window.__doauthorHasLoaded__ !== 'undefined') {
+      // Idempotence for poor
+      return;
+    }
     window.sodium = {
         onload: (sodium) => {
             const maybePort = () => {
