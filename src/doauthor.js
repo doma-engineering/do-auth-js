@@ -1,7 +1,11 @@
 export const main = async () => {
-    if (typeof window.__doauthorHasLoaded__ !== 'undefined') {
-      // Idempotence for poor
-      return;
+    if (
+        window.hasOwnProperty('__doauthorHasLoaded__') ||
+        (window.hasOwnProperty('sodium') && window.sodium.hasOwnProperty('SODIUM_LIBRARY_VERSION_MAJOR'))
+    ) {
+        // Idempotence for poor
+        window.__doauthorHasLoaded__ = true;
+        return new Promise(() => true);
     }
     window.sodium = {
         onload: (sodium) => {
