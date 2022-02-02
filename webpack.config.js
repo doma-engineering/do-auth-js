@@ -6,7 +6,7 @@ module.exports = (env) => {
     entry: './src/doauthor.js',
     output: {
       filename: 'doauthor.js',
-      library: 'DoAuthorBootstrapper',
+      library: 'DoAuthor',
       path: path.resolve(__dirname, 'dist')
     },
   }

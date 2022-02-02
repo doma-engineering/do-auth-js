@@ -6,33 +6,20 @@ For usage as a library, consult `embedded_test_suite.html`.
 
 ## Adding to your website
 
-Fetch JS synchronously from unpkg.com:
+Fetch necessary stuff:
 
 ```
 <script src="https://unpkg.com/doauthor@0.4.2/dist/doauthor.js"></script>
+<script src="https://unpkg.com/doauthor@0.4.2/dist/sodium.js" async defer></script>
 ```
 
-Defer loading of sodium.js it's an important work around the issue that this sodium wrapper [doesn't provide promise-based API](https://github.com/jedisct1/libsodium.js/issues/284) for loading:
+Then whenever you need access to `window.doauthor`, you'll have to first "require" DoAuthor like so:
 
 ```
-<script src="https://unpkg.com/doauthor@0.4.2/dist/sodium.js"></script>
+await DoAuthor.require();
+const u8a_ = doauthor.crypto.read('RmlyZSAvLyBJY2U=');
+console.log(Array.from(u8a_).map((x) => String.fromCharCode(x)).join(''));
 ```
-
-Then add the following async call after `</body>`:
-
-```
-(async () => {
-    DoAuthorBootstrapper.main().then(
-        () => {
-            // You have access to doauthor here
-        }
-    )
-})
-```
-
-The reason why you can't add it in `window.onload` is that we're using `sodium.js` underneath, which loads asynchronously and independently from `window`, calling its own `window.sodium.onload` hook.
-
-If you want to check that `doauthor` is loaded, we're setting `window.__doauthorHasLoaded__` variable to `true` after sodium and doauthor are done with injecting their functions into the global namespace.
 
 ## Development environment
 
@@ -41,9 +28,9 @@ If you want to check that `doauthor` is loaded, we're setting `window.__doauthor
 Currently we only support Ubuntu LTS, which we run on all the developer machines and all the production servers.
 It's trivial to use our source codes on other distros, but we don't support it, although we welcome external packaging efforts.
 
-Run `npm run bootstrap`, which shall install `google-chrome-stable`, download `sodium` and install pre-commit hooks.
+Run `npm run bootstrap`, which shall install `google-chrome-stable`. Consider this version of chromium as unsafe to use for other things than testing and vulnerable, since it's an old version known to be compatible with wdio we use. Make sure to not forward none of the ports of the application to the external world. This script shall also download latest `sodium` and install pre-commit hooks.
 
-If you already have `google-chrome-stable`, run `npm run get:hooks && npm run get:sodium`, or don't worry about it and just reinstall it.
+If you already have `google-chrome-stable`, you'll have to first uninstall it (or upgrade dependencies to wdio and send us a pull request). Sorry.
 
 Now you can run `npm run watch` and hack on `src/doauthor.js`.
 
@@ -53,4 +40,4 @@ Make sure you have packed your code into `dist` by either having `npm run watch`
 
 Run `npm run test:setup` in a terminal. It will serve `embedded_test_suite.html` so that `wdio` can run and test it.
 
-Now run `npm run test:run` to perform the actual tests.
+Now run `npm run build && npm run test:run` to perform the actual tests.

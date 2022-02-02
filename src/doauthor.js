@@ -1,11 +1,11 @@
-export const main = async () => {
+export const require = () => {
     if (
         window.hasOwnProperty('__doauthorHasLoaded__') ||
         (window.hasOwnProperty('sodium') && window.sodium.hasOwnProperty('SODIUM_LIBRARY_VERSION_MAJOR'))
     ) {
         // Idempotence for poor
         window.__doauthorHasLoaded__ = true;
-        return new Promise(() => true);
+        return (async () => 'Welcome to DoAuth')();
     }
     window.sodium = {
         onload: (sodium) => {

@@ -10,6 +10,8 @@
     <pre id="test-id"></pre>
     <label>Doauthor loading:</label>
     <div id="doauthor-status" class="test">pending</div>
+    <label>Doauthor performing:</label>
+    <div id="performance-is-ok" class="test">pending</div>
     <label>URLSafe Base64 is tripping:</label>
     <div id="base64-suite" class="test">pending</div>
     <label>KDF works and makes valid signing keys:</label>
@@ -252,20 +254,29 @@ iex(18)> DoAuth.Credential.present_credential_map(kp, cred_map, issuanceDate: ta
             nok("verifiable-presentations");
         }
     }
+    const testPerformanceIsOk = (t000, t290, t300) => {
+        if (t300 - t000 < 300 && t300 - t290 < 10) {
+            ok('performance-is-ok');
+        } else {
+            nok('performance-is-ok');
+        }
+    }
     (async () => {
-        const promise = DoAuthorBootstrapper.main()
-        promise.then(
-            async () => {
-                i("test-id").innerText = doauthor.crypto.show(sodium.randombytes_buf(8));
-                testLoaded();
-                testBase64();
-                const mkey = testMainKeyDerivation();
-                const skp = testMainKeyInit2GeneratesDistinctKey(mkey);
-                await testCryptoVerifyMapOfSignMapIsTrue(skp);
-                const cred = testCredentialCompatibility();
-                testPresentationCompatibility(cred);
-            }
-        )
+        t000 = performance.now();
+        _ok1 = await DoAuthor.require();
+        t290 = performance.now();
+        _ok2 = await DoAuthor.require();
+        t300 = performance.now();
+        _ok3 = await DoAuthor.require();
+        i("test-id").innerText = doauthor.crypto.show(sodium.randombytes_buf(8));
+        testLoaded();
+        testPerformanceIsOk(t000, t290, t300);
+        testBase64();
+        const mkey = testMainKeyDerivation();
+        const skp = testMainKeyInit2GeneratesDistinctKey(mkey);
+        await testCryptoVerifyMapOfSignMapIsTrue(skp);
+        const cred = testCredentialCompatibility();
+        testPresentationCompatibility(cred);
     })();
 </script>
 
