@@ -9,8 +9,8 @@ For usage as a library, consult `embedded_test_suite.html`.
 Fetch necessary stuff:
 
 ```
-<script src="https://unpkg.com/doauthor@0.5.3/dist/doauthor.js"></script>
-<script src="https://unpkg.com/doauthor@0.5.3/dist/sodium.js" async defer></script>
+<script src="https://unpkg.com/doauthor@0.6.0/dist/doauthor.js"></script>
+<script src="https://unpkg.com/doauthor@0.6.0/dist/sodium.js" async defer></script>
 ```
 
 Then whenever you need access to `window.doauthor`, you'll have to first "require" DoAuthor like so:
