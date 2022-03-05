@@ -27,7 +27,7 @@ const import_doauth_into_global_namespace = () => {
 
     window.doauthor = {
         /* server: window.location.protocol + '//' + window.location.hostname + maybePort(), */
-        server: "https://maja.doma.dev",
+        // server: "https://maja.doma.dev",
         saltSize: 16,
         hashSize: 32,
         keySize: 32,
@@ -151,7 +151,8 @@ const import_doauth_into_global_namespace = () => {
         const opts0 = {
             "proofField": "proof",
             "signatureField": "signature",
-            "keyExtractor": (proof) => doauthor.did.fetchPublicKey(proof["verificationMethod"]),
+            //"keyExtractor": (proof) => doauthor.did.fetchPublicKey(proof["verificationMethod"]),
+            "keyExtractor": (proof) => proof["verificationMethod"],
             "ignore": ["id"]
         };
 
@@ -330,15 +331,15 @@ const import_doauth_into_global_namespace = () => {
         return localStorage.getItem("pk|" + did_str);
     }
 
-    window.doauthor.did.fetchPublicKey = async (did_str) => {
-        var pk_by_did = doauthor.did.recallPublicKey(did_str);
-        if (pk_by_did === null) {
-            const did_public_resp = await fetch(doauthor.server + "/did/public/" + did_str).then(resp => resp.json);
-            pk_by_did = did_public_resp["public"];
-            doauthor.did.memorisePublicKey64(pk_by_did);
-        }
-        return pk_by_did;
-    }
+    // window.doauthor.did.fetchPublicKey = async (did_str) => {
+    //     var pk_by_did = doauthor.did.recallPublicKey(did_str);
+    //     if (pk_by_did === null) {
+    //         const did_public_resp = await fetch(doauthor.server + "/did/public/" + did_str).then(resp => resp.json);
+    //         pk_by_did = did_public_resp["public"];
+    //         doauthor.did.memorisePublicKey64(pk_by_did);
+    //     }
+    //     return pk_by_did;
+    // }
 
     window.doauthor.did.memorisePublicKey64 = (pk64) => {
         return localStorage.setItem("pk|" + doauthor.did.from_pk64(pk64), pk64);
